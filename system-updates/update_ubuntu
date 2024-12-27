@@ -1,0 +1,31 @@
+#!/bin/bash
+
+echo "Starting system update for Ubuntu..."
+
+# Update the package lists
+echo "Updating package list..."
+sudo apt update -y
+
+# Show upgradable packages
+echo "Checking for upgradable packages..."
+sudo apt list --upgradable
+
+# Upgrade all packages
+echo "Upgrading all packages..."
+sudo apt upgrade -y
+
+# Optionally perform a full system upgrade
+echo "Performing a full system upgrade (if necessary)..."
+sudo apt full-upgrade -y
+
+# Remove unnecessary packages
+echo "Removing unused packages..."
+sudo apt autoremove -y
+
+# Clean up cached files
+echo "Cleaning up package cache..."
+sudo apt clean
+
+echo "System update completed successfully!"
+wall "System reboot scheduled. Please save your work."
+# shutdown -r +10 "Rebooting in 10 minutes. Save your work!"

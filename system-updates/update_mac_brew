@@ -1,0 +1,28 @@
+#!/bin/bash
+
+echo "Starting system update using Homebrew..."
+
+# Update Homebrew itself
+echo "Updating Homebrew..."
+brew update
+
+# Upgrade installed formulas
+echo "Upgrading installed packages..."
+brew upgrade
+
+# Upgrade installed casks (for apps)
+echo "Upgrading installed casks..."
+brew upgrade --cask
+
+# Clean up outdated versions
+echo "Cleaning up old packages and cache..."
+brew cleanup
+
+# Check for any potential issues with Homebrew
+echo "Running Homebrew diagnostics..."
+brew doctor
+
+#echo "Restarting Homebrew services..." # like databases or servers
+#brew services restart --all
+
+echo "System update completed successfully!"
