@@ -1,6 +1,6 @@
 #!/bin/bash
-
-# Script to fully update a CentOS system
+# Description: Script to fully update a CentOS system
+# Author: tdiprima
 
 echo "Starting system update for CentOS..."
 

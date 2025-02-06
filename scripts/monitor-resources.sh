@@ -1,6 +1,7 @@
 #!/bin/bash
+# Description: Script to monitor system resources
+# Author: tdiprima
 
-# Script to monitor system resources
 echo "System Resource Monitor"
 echo "-----------------------"
 echo "CPU Usage:"
