@@ -1,6 +1,7 @@
 #!/bin/bash
+# Description: Script to analyze logs
+# Author: tdiprima
 
-# Script to analyze logs
 LOG_FILE="/path/to/logfile"
 
 echo "Log Analyzer"

@@ -1,4 +1,6 @@
 #!/bin/bash
+# Description: Script to fully update an Ubuntu system
+# Author: tdiprima
 
 echo "Starting system update for Ubuntu..."
 

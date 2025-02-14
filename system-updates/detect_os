@@ -1,4 +1,6 @@
 #!/bin/bash
+# Description: Detect the operating system
+# Author: tdiprima
 
 detect_os() {
     if [ -f /etc/os-release ]; then

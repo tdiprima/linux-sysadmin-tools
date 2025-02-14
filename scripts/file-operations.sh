@@ -1,6 +1,7 @@
 #!/bin/bash
+# Description: Script to find and rename files
+# Author: tdiprima
 
-# Script to find and rename files
 echo "File Operations"
 echo "1. Find duplicate files"
 echo "2. Batch rename files"
