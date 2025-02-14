@@ -1,4 +1,6 @@
 #!/bin/bash
+# Description: Script to update a macOS system using Homebrew
+# Author: tdiprima
 
 echo "Starting system update using Homebrew..."
 

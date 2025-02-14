@@ -1,6 +1,7 @@
 #!/bin/bash
+# Description: Script to check network connectivity
+# Author: tdiprima
 
-# Script to check network connectivity
 HOSTS=("google.com" "github.com" "yahoo.com")
 
 for host in "${HOSTS[@]}"; do

@@ -1,6 +1,6 @@
 #!/bin/bash
-
-# Script to fully update a RHEL system
+# Description: Script to fully update a RHEL system
+# Author: tdiprima
 
 echo "Starting system update for RHEL..."
 
