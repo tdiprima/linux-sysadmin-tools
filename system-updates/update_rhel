@@ -1,5 +1,6 @@
 #!/bin/bash
-# Description: Script to fully update a RHEL system
+# Description: Keeping RHEL systems up to date by checking for updates, 
+# upgrading all packages, removing unnecessary ones, and cleaning up cached files.
 # Author: tdiprima
 
 echo "Starting system update for RHEL..."
