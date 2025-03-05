@@ -13,7 +13,7 @@ sudo yum check-update
 echo "Upgrading all packages..."
 sudo yum update -y
 
-# Remove old or unnecessary packages
+# This command removes packages that were installed as dependencies but are no longer needed.
 echo "Removing unnecessary packages..."
 sudo yum autoremove -y
 
