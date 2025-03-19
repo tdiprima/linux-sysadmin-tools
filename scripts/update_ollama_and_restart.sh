@@ -1,5 +1,5 @@
 #!/bin/bash
-# Description: Script to update ollama, add environment to service, and restart.
+# Description: Script to update ollama, add environment, restart, and check.
 # Author: tdiprima
 
 # Update Ollama
@@ -10,10 +10,10 @@ ollama --version
 # Restart ollama.service
 echo "Resetting ollama.service..."
 
-# Add back Environment="OLLAMA_HOST=0.0.0.0:11434"
-# sudo sed -i 's/^Environment=/Environment="OLLAMA_HOST=0.0.0.0:11434"/' /etc/systemd/system/ollama.service
-# Add a new Environment line underneath the existing one
-sudo sed -i '/Environment=/a\Environment="OLLAMA_HOST=0.0.0.0:11434"' /etc/systemd/system/ollama.service
+# Ensure Environment line exists or append it
+if ! grep -q 'Environment="OLLAMA_HOST=0.0.0.0:11434"' /etc/systemd/system/ollama.service; then
+    sudo sed -i '/Environment=/a\Environment="OLLAMA_HOST=0.0.0.0:11434"' /etc/systemd/system/ollama.service
+fi
 
 # Reload the systemd daemon to pick up changes
 echo "Reloading systemd configuration..."
@@ -23,6 +23,12 @@ sudo systemctl daemon-reload
 echo "Restarting ollama.service..."
 sudo systemctl restart ollama.service
 
-# Check the status of the service to ensure it's running properly
+# Wait and check status
+echo "Waiting for Ollama service to stabilize..."
+sleep 5
 echo "Checking the status of ollama.service..."
-sudo systemctl status ollama.service
+sudo systemctl status ollama.service --no-pager
+
+# Test connection
+echo "Testing Ollama connection..."
+curl -s http://0.0.0.0:11434 || echo "Failed to connect to Ollama"
