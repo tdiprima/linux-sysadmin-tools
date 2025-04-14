@@ -28,23 +28,23 @@ def log_status(status):
 
 print(f"📡 Monitoring {TARGET} every {INTERVAL}s... (Logging to {LOG_FILE})")
 
-while True:
-    try:
-        response_time = ping(TARGET, timeout=2)
-        if response_time is not None:
-            log_status(f"✅ Ping successful ({round(response_time * 1000)} ms)")
-        else:
-            status = "❌ Ping timeout"
-            if PORT:
-                port_up = check_tcp_port(TARGET, PORT)
-                if port_up:
-                    status += f" but ✅ Port {PORT} is open"
-                else:
-                    status += f" and ❌ Port {PORT} is closed"
-            log_status(status)
-    except Exception as e:
-        log_status(f"❌ Ping error: {e}")
-    except KeyboardInterrupt:
-        print("\n🔚 Stopping monitor.")
-        break
-    time.sleep(INTERVAL)
+try:
+    while True:
+        try:
+            response_time = ping(TARGET, timeout=2)
+            if response_time is not None:
+                log_status(f"✅ Ping successful ({round(response_time * 1000)} ms)")
+            else:
+                status = "❌ Ping timeout"
+                if PORT:
+                    port_up = check_tcp_port(TARGET, PORT)
+                    if port_up:
+                        status += f" but ✅ Port {PORT} is open"
+                    else:
+                        status += f" and ❌ Port {PORT} is closed"
+                log_status(status)
+        except Exception as e:
+            log_status(f"❌ Ping error: {e}")
+        time.sleep(INTERVAL)
+except KeyboardInterrupt:
+    print("\n🔚 Stopping monitor.")
