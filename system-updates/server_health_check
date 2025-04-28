@@ -1,0 +1,47 @@
+#!/bin/bash
+#
+# Description: Run right after rebooting/updating to check all the essentials
+# Author: Tammy DiPrima
+#
+echo "===== Server Health Check (Rocky Linux) ====="
+
+echo
+echo "-- System Uptime and Load --"
+uptime
+
+echo
+echo "-- Disk Space --"
+df -h
+
+echo
+echo "-- Memory Usage --"
+free -h
+
+echo
+echo "-- CPU Load (top 5 processes) --"
+ps -eo pid,ppid,cmd,%mem,%cpu --sort=-%cpu | head -n 6
+
+echo
+echo "-- Critical Services Status --"
+# Rocky Linux common services
+services=("sshd" "docker" "ollama" "httpd" "postgresql")
+for service in "${services[@]}"; do
+    echo "Service: $service"
+    systemctl is-active --quiet "$service" && echo "✅ Running" || echo "❌ NOT running"
+    # systemctl status "$service" --no-pager --quiet && echo "✅ Running" || echo "❌ NOT running"
+done
+
+echo
+echo "-- Open Network Ports --"
+ss -tuln
+
+echo
+echo "-- Recent System Logs --"
+journalctl -xe --no-pager -n 20
+
+echo
+echo "-- Last Reboots --"
+last -x | head
+
+echo
+echo "===== Done. Review output for any issues! ====="

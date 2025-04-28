@@ -1,0 +1,31 @@
+#!/bin/bash
+# Description: Script to fully update a Rocky Linux system
+# Author: Tammy DiPrima
+
+echo "Starting system update for Rocky Linux..."
+
+# Ensure the system is fully updated
+echo "Refreshing package lists and updating repositories..."
+sudo dnf check-update
+
+# Upgrade all packages (including security updates)
+echo "Upgrading all packages..."
+sudo dnf upgrade -y
+
+# Remove orphaned or unnecessary packages
+echo "Removing unnecessary packages..."
+sudo dnf autoremove -y
+
+# Clean up cached files to free space
+echo "Cleaning up cache..."
+sudo dnf clean all
+
+echo "System update completed successfully!"
+
+needs-restarting -r
+
+# Notify all users about a potential reboot
+# wall "System updates applied. A reboot may be required. Please save your work."
+
+# Uncomment the following line if a reboot is definitely needed
+# shutdown -r +10 "Rebooting in 10 minutes. Save your work!"
