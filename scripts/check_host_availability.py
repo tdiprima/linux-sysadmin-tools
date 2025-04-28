@@ -2,16 +2,18 @@
 🧰 Tool: Python Network Monitor Script
 Author: Tammy DiPrima
 """
-import time
 import socket
+import time
 from datetime import datetime
+
 from ping3 import ping
 
 # CONFIGURATION
-TARGET = "192.168.1.1"        # Change to your target IP/domain
-PORT = 22                     # Optional: Set to None to skip port check
-INTERVAL = 5                  # Seconds between checks
+TARGET = "192.168.1.1"  # Change to your target IP/domain
+PORT = 22  # Optional: Set to None to skip port check
+INTERVAL = 5  # Seconds between checks
 LOG_FILE = "network_monitor.log"
+
 
 def check_tcp_port(host, port, timeout=2):
     try:
@@ -20,11 +22,13 @@ def check_tcp_port(host, port, timeout=2):
     except Exception:
         return False
 
+
 def log_status(status):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     with open(LOG_FILE, "a") as f:
         f.write(f"[{timestamp}] {status}\n")
     print(f"[{timestamp}] {status}")
+
 
 print(f"📡 Monitoring {TARGET} every {INTERVAL}s... (Logging to {LOG_FILE})")
 
