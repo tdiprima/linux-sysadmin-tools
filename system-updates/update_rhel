@@ -21,7 +21,9 @@ sudo yum autoremove -y
 echo "Cleaning up cache..."
 sudo yum clean all
 
+test -f /var/run/reboot-required && echo "Yes, reboot needed" || echo "All good"
+
 echo "System update completed successfully!"
 
-wall "System reboot scheduled. Please save your work."
+# wall "System reboot scheduled. Please save your work."
 # shutdown -r +10 "Rebooting in 10 minutes. Save your work!"
