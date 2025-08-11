@@ -2,23 +2,29 @@
 # Description: Script to fully update a Rocky Linux system
 # Author: Tammy DiPrima
 
+# If not running as root, re-run with sudo
+if [ "$EUID" -ne 0 ]; then
+    echo "Re-running script with sudo privileges..."
+    exec sudo "$0" "$@"
+fi
+
 echo "Starting system update for Rocky Linux..."
 
 # Ensure the system is fully updated
 echo "Refreshing package lists and updating repositories..."
-sudo dnf check-update
+dnf check-update
 
 # Upgrade all packages (including security updates)
 echo "Upgrading all packages..."
-sudo dnf upgrade -y
+dnf upgrade -y
 
 # Remove orphaned or unnecessary packages
 echo "Removing unnecessary packages..."
-sudo dnf autoremove -y
+dnf autoremove -y
 
 # Clean up cached files to free space
 echo "Cleaning up cache..."
-sudo dnf clean all
+dnf clean all
 
 echo "System update completed successfully!"
 

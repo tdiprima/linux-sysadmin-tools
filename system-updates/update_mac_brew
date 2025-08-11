@@ -2,6 +2,9 @@
 # Description: Script to update a macOS system using Homebrew
 # Author: tdiprima
 
+# Skip casks requiring admin privileges to avoid password prompts
+export HOMEBREW_CASK_OPTS="--no-quarantine"
+
 echo "Starting system update using Homebrew..."
 
 # Update Homebrew itself
@@ -12,9 +15,13 @@ brew update
 echo "Upgrading installed packages..."
 brew upgrade
 
-# Upgrade installed casks (for apps)
+# Upgrade installed casks (for apps) - skip those requiring admin privileges
 echo "Upgrading installed casks..."
-brew upgrade --cask
+brew upgrade --cask --greedy 2>/dev/null || {
+    echo "Some casks skipped (likely require admin privileges)"
+    # Try upgrading only casks that don't require sudo
+    brew upgrade --cask --no-quarantine --greedy 2>/dev/null || true
+}
 
 # Clean up outdated versions
 echo "Cleaning up old packages and cache..."

@@ -2,31 +2,37 @@
 # Description: Script to fully update an Ubuntu system
 # Author: tdiprima
 
+# If not running as root, re-run with sudo
+if [ "$EUID" -ne 0 ]; then
+    echo "Re-running script with sudo privileges..."
+    exec sudo "$0" "$@"
+fi
+
 echo "Starting system update for Ubuntu..."
 
 # Update the package lists
 echo "Updating package list..."
-sudo apt update -y
+apt update -y
 
 # Show upgradable packages
 echo "Checking for upgradable packages..."
-sudo apt list --upgradable
+apt list --upgradable
 
 # Upgrade all packages
 echo "Upgrading all packages..."
-sudo apt upgrade -y
+apt upgrade -y
 
 # Optionally perform a full system upgrade
 echo "Performing a full system upgrade (if necessary)..."
-sudo apt full-upgrade -y
+apt full-upgrade -y
 
 # Remove unnecessary packages
 echo "Removing unused packages..."
-sudo apt autoremove -y
+apt autoremove -y
 
 # Clean up cached files
 echo "Cleaning up package cache..."
-sudo apt clean
+apt clean
 
 test -f /var/run/reboot-required && echo "Yes, reboot needed" || echo "All good"
 

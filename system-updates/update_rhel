@@ -3,23 +3,29 @@
 # upgrading all packages, removing unnecessary ones, and cleaning up cached files.
 # Author: tdiprima
 
+# If not running as root, re-run with sudo
+if [ "$EUID" -ne 0 ]; then
+    echo "Re-running script with sudo privileges..."
+    exec sudo "$0" "$@"
+fi
+
 echo "Starting system update for RHEL..."
 
 # Update the package repository
 echo "Updating package repository..."
-sudo yum check-update
+yum check-update
 
 # Upgrade all packages
 echo "Upgrading all packages..."
-sudo yum update -y
+yum update -y
 
 # This command removes packages that were installed as dependencies but are no longer needed.
 echo "Removing unnecessary packages..."
-sudo yum autoremove -y
+yum autoremove -y
 
 # Clean up cached files
 echo "Cleaning up cache..."
-sudo yum clean all
+yum clean all
 
 test -f /var/run/reboot-required && echo "Yes, reboot needed" || echo "All good"
 
