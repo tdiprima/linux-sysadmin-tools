@@ -2,7 +2,7 @@
 
 import schedule
 import time
-import sh
+import subprocess
 import sys
 from loguru import logger
 
@@ -14,12 +14,13 @@ def run_update_script(script_name):
     logger.info(f"Starting {script_name} update process")
     
     try:
-        result = sh.Command(f"./{script_name}")(_out=str, _err=str, _return_cmd=True)
+        result = subprocess.run([f"./{script_name}"], capture_output=True, text=True)
         
-        output = result.stdout.decode('utf-8')
-        error = result.stderr.decode('utf-8') if result.stderr else ""
+        output = result.stdout
+        error = result.stderr
+        exit_code = result.returncode
         
-        logger.info(f"Update command completed with exit code: {result.exit_code}")
+        logger.info(f"Update command completed with exit code: {exit_code}")
         
         if output:
             logger.info("Update output:")
@@ -34,12 +35,12 @@ def run_update_script(script_name):
         if "reboot" in output.lower() or "restart" in output.lower():
             logger.critical("REBOOT REQUIRED - Check update output above")
         
-        if result.exit_code != 0:
-            logger.error(f"Update failed with exit code {result.exit_code}")
+        if exit_code != 0:
+            logger.error(f"Update failed with exit code {exit_code}")
         else:
             logger.info("Update completed successfully")
             
-    except sh.CommandNotFound:
+    except FileNotFoundError:
         logger.error(f"{script_name} script not found in current directory")
     except Exception as e:
         logger.error(f"Error running {script_name}: {str(e)}")
