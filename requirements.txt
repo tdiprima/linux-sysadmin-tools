@@ -8,3 +8,4 @@ loguru
 paramiko
 pexpect
 # getpass
+keyring
