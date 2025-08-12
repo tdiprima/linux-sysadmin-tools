@@ -195,7 +195,7 @@ def main():
     
     # Alternative: Schedule the job to run every day at 3:00 PM
     scheduler.add_job(
-        run_brew_update,
+        run_brew_update_with_auth,
         trigger=CronTrigger(hour=15, minute=00),
         id='homebrew_update',
         name='Daily Homebrew Update',
