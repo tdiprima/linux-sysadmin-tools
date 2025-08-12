@@ -85,8 +85,31 @@ These update scripts contain commands such as `apt update`, `dnf update`, etc., 
 
 ---
 
-```sh
-sudo python3 brew_scheduler.py
+## brew\_scheduler.py
+
 ```
+Error: Running Homebrew as root is extremely dangerous and no longer supported.
+As Homebrew does not drop privileges on installation you would be giving all
+build scripts full access to your system.
+```
+
+You're facing a common issue with automated Homebrew updates. The script correctly refuses to run as root (which is dangerous), but some packages require elevated privileges for certain operations.
+
+### Solution: Configure sudo for passwordless Homebrew operations (Recommended)
+
+Edit your sudoers file to allow specific Homebrew commands without a password:
+
+```bash
+sudo visudo
+```
+
+Add these lines (replace `YOUR_USERNAME` with your actual username):
+
+```sh
+# Allow passwordless sudo for Homebrew operations
+YOUR_USERNAME ALL=(ALL) NOPASSWD: /usr/local/bin/brew *
+```
+
+**Important**: This grants passwordless sudo only for brew commands, which is more secure than blanket sudo access.
 
 <br>
