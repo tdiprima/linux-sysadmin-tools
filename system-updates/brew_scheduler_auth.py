@@ -179,7 +179,7 @@ def main():
     else:
         update_function = run_brew_update_simple
     
-    logger.info(f"Script will run every Monday at 11:30 PM")
+    logger.info(f"Script will run every Day at 3:00 PM")
     
     # Create scheduler
     scheduler = BlockingScheduler()
