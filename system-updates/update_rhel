@@ -9,27 +9,15 @@ if [ "$EUID" -ne 0 ]; then
     exec sudo "$0" "$@"
 fi
 
-echo "Starting system update for RHEL..."
-
-# Update the package repository
-echo "Updating package repository..."
-yum check-update
-
 # Upgrade all packages
-echo "Upgrading all packages..."
 yum update -y
 
 # This command removes packages that were installed as dependencies but are no longer needed.
-echo "Removing unnecessary packages..."
 yum autoremove -y
 
 # Clean up cached files
-echo "Cleaning up cache..."
 yum clean all
 
-test -f /var/run/reboot-required && echo "Yes, reboot needed" || echo "All good"
+needs-restarting -r &>/dev/null && echo "All good." || echo "Yes, reboot needed"
 
 echo "System update completed successfully!"
-
-# wall "System reboot scheduled. Please save your work."
-# shutdown -r +10 "Rebooting in 10 minutes. Save your work!"

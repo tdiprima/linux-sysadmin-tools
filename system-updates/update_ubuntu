@@ -8,34 +8,19 @@ if [ "$EUID" -ne 0 ]; then
     exec sudo "$0" "$@"
 fi
 
-echo "Starting system update for Ubuntu..."
-
 # Update the package lists
-echo "Updating package list..."
-apt update -y
-
-# Show upgradable packages
-echo "Checking for upgradable packages..."
-apt list --upgradable
+apt-get update -y
 
 # Upgrade all packages
-echo "Upgrading all packages..."
-apt upgrade -y
+apt-get upgrade -y
 
 # Optionally perform a full system upgrade
-echo "Performing a full system upgrade (if necessary)..."
-apt full-upgrade -y
+apt-get full-upgrade -y
 
 # Remove unnecessary packages
-echo "Removing unused packages..."
-apt autoremove -y
+apt-get autoremove -y
 
 # Clean up cached files
-echo "Cleaning up package cache..."
-apt clean
+apt-get clean
 
 test -f /var/run/reboot-required && echo "Yes, reboot needed" || echo "All good"
-
-echo "System update completed successfully!"
-# wall "System reboot scheduled. Please save your work."
-# shutdown -r +10 "Rebooting in 10 minutes. Save your work!"
