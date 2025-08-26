@@ -1,0 +1,45 @@
+#!/bin/bash
+# Description: Universal system updater for Debian/Ubuntu + RHEL/Rocky
+# Author: Bear & ChatGPT
+
+if [ "$EUID" -ne 0 ]; then
+    echo "Re-running with sudo..."
+    exec sudo "$0" "$@"
+fi
+
+# Detect OS family
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+else
+    echo "Cannot detect OS — /etc/os-release missing."
+    exit 1
+fi
+
+case "$ID" in
+    ubuntu|debian)
+        echo "Detected Debian/Ubuntu system."
+        apt-get update -y
+        apt-get upgrade -y
+        apt-get full-upgrade -y
+        apt-get autoremove -y
+        apt-get clean
+        if [ -f /var/run/reboot-required ]; then
+            echo "Yes, reboot needed"
+        else
+            echo "All good"
+        fi
+        ;;
+    rocky|rhel|centos)
+        echo "Detected RHEL/Rocky/CentOS system."
+        dnf upgrade -y
+        dnf autoremove -y
+        dnf clean all
+        # RHEL-based doesn't have /var/run/reboot-required by default
+        echo "Check 'dnf updateinfo' for reboot recommendations."
+        ;;
+    *)
+        echo "Unsupported OS: $ID"
+        exit 1
+        ;;
+esac
+
