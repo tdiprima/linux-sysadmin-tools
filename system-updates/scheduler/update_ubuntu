@@ -1,0 +1,26 @@
+#!/bin/bash
+# Description: Script to fully update an Ubuntu system
+# Author: tdiprima
+
+# If not running as root, re-run with sudo
+if [ "$EUID" -ne 0 ]; then
+    echo "Re-running script with sudo privileges..."
+    exec sudo "$0" "$@"
+fi
+
+# Update the package lists
+apt-get update -y
+
+# Upgrade all packages
+apt-get upgrade -y
+
+# Optionally perform a full system upgrade
+apt-get full-upgrade -y
+
+# Remove unnecessary packages
+apt-get autoremove -y
+
+# Clean up cached files
+apt-get clean
+
+test -f /var/run/reboot-required && echo "Yes, reboot needed" || echo "All good"

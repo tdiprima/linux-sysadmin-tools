@@ -1,0 +1,25 @@
+#!/bin/bash
+# Description: Detect the operating system
+# Author: tdiprima
+
+detect_os() {
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        OS_NAME=$NAME
+        OS_VERSION=$VERSION
+    elif [ -f /etc/redhat-release ]; then
+        OS_NAME=$(cat /etc/redhat-release)
+        OS_VERSION=""
+    elif [ -x "$(command -v sw_vers)" ]; then
+        OS_NAME=$(sw_vers -productName)
+        OS_VERSION=$(sw_vers -productVersion)
+    else
+        OS_NAME=$(uname -s)
+        OS_VERSION=$(uname -r)
+    fi
+
+    echo "Operating System: $OS_NAME"
+    echo "Version: $OS_VERSION"
+}
+
+detect_os

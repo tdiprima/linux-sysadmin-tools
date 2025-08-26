@@ -1,0 +1,23 @@
+#!/bin/bash
+# Description: Keeping RHEL systems up to date by checking for updates, 
+# upgrading all packages, removing unnecessary ones, and cleaning up cached files.
+# Author: tdiprima
+
+# If not running as root, re-run with sudo
+if [ "$EUID" -ne 0 ]; then
+    echo "Re-running script with sudo privileges..."
+    exec sudo "$0" "$@"
+fi
+
+# Upgrade all packages
+yum update -y
+
+# This command removes packages that were installed as dependencies but are no longer needed.
+yum autoremove -y
+
+# Clean up cached files
+yum clean all
+
+needs-restarting -r &>/dev/null && echo "All good." || echo "Yes, reboot needed"
+
+echo "System update completed successfully!"
