@@ -40,14 +40,19 @@ echo "🧠 CPU Cores: $cores" | tee -a "$outfile"
 ram=$(free -h --si | awk '/^Mem:/ {print $2}')
 echo "💾 Total RAM: $ram" | tee -a "$outfile"
 
-# VRAM
+# VRAM / GPU Detection
 if command -v nvidia-smi &> /dev/null; then
     vram=$(nvidia-smi --query-gpu=memory.total --format=csv,noheader,nounits | head -1)
     echo "🎮 GPU VRAM (NVIDIA): ${vram} MiB" | tee -a "$outfile"
 else
     gpu_info=$(lspci | grep -Ei 'vga|3d|display' | head -1)
-    echo "🖥️ GPU Info: $gpu_info" | tee -a "$outfile"
-    echo "❓ VRAM: Not detected (non-NVIDIA or no driver)" | tee -a "$outfile"
+    if echo "$gpu_info" | grep -qi "vmware\|virtualbox\|qemu"; then
+        echo "🖥️  GPU Info: $gpu_info" | tee -a "$outfile"
+        echo "🚫 No physical GPU detected (virtual display adapter only)" | tee -a "$outfile"
+    else
+        echo "🖥️  GPU Info: $gpu_info" | tee -a "$outfile"
+        echo "❓ VRAM: Not detected (non-NVIDIA or no driver)" | tee -a "$outfile"
+    fi
 fi
 
 # Disk space (root)
