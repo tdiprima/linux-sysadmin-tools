@@ -4,3 +4,6 @@
 schedule
 loguru
 paramiko
+psutil
+ping3
+torch
