@@ -14,7 +14,7 @@ servers = [
     # "192.168.1.14",
 ]
 
-username = "tdiprima"
+username = "USERNAME"
 timeout = 10  # Connection timeout in seconds
 
 
