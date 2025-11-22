@@ -28,4 +28,4 @@ try:
 except Exception as e:
     logger.error(e)
 except KeyboardInterrupt:
-    logger.info("\n🔚 Stopping.")
+    logger.info("\n🎬 Stopping.")

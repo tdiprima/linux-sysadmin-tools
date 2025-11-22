@@ -11,4 +11,4 @@ try:
 except Exception as e:
     print(e)
 except KeyboardInterrupt:
-    print("\n🔚 Stopping.")
+    print("\n🎬 Stopping.")
