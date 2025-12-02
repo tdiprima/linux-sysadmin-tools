@@ -11,7 +11,9 @@ logger.add("scheduler.log", rotation="5 MB", retention=3, level="DEBUG")
 
 
 def my_daily_task():
+    logger.info("📦 Updating Cargo...")
     subprocess.run(["rustup", "update"])
+    logger.info("✅ Cargo updated.")
     password = os.getenv("BREW_PASSWORD")
     logger.info("🍺 Updating Homebrew...")
     subprocess.run(["brew", "update"])
