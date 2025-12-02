@@ -1,7 +1,10 @@
+# Updates Rust and Homebrew, upgrades installed packages, cleans up, and 
+# checks system health, handling exceptions and keyboard interrupts.
 import os
 import subprocess
 
 try:
+    subprocess.run(["rustup", "update"])
     password = os.getenv("BREW_PASSWORD")
     print("🍺 Updating Homebrew...")
     subprocess.run(["brew", "update"])

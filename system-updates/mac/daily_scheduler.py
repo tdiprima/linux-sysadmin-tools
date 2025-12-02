@@ -1,3 +1,5 @@
+# Automates the daily execution of system updates for Rust and Homebrew at 3:00 PM,
+# logging the process and handling exceptions.
 import os
 import subprocess
 import time
@@ -9,6 +11,7 @@ logger.add("scheduler.log", rotation="5 MB", retention=3, level="DEBUG")
 
 
 def my_daily_task():
+    subprocess.run(["rustup", "update"])
     password = os.getenv("BREW_PASSWORD")
     logger.info("🍺 Updating Homebrew...")
     subprocess.run(["brew", "update"])
