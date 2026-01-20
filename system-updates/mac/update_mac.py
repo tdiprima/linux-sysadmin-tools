@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Updates Rust and Homebrew, upgrades installed packages, cleans up, and 
 # checks system health, handling exceptions and keyboard interrupts.
 import os
