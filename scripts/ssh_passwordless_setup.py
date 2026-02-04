@@ -8,7 +8,7 @@ import getpass
 import os
 import sys
 from pathlib import Path
-from typing import List, Tuple
+from typing import Tuple
 
 import paramiko
 
@@ -21,11 +21,11 @@ def generate_ssh_key_if_needed(key_path: str = "~/.ssh/id_rsa") -> Tuple[str, st
     private_key = os.path.expanduser(key_path)
     public_key = f"{private_key}.pub"
 
-    if not os.path.exists(private_key):
+    if not Path(private_key).exists():
         print(f"SSH key not found at {private_key}")
         response = input("Would you like to generate a new SSH key? (y/n): ").lower()
         if response == "y":
-            os.makedirs(os.path.dirname(private_key), exist_ok=True)
+            Path(private_key).parent.mkdir(parents=True, exist_ok=True)
             os.system(f'ssh-keygen -t rsa -b 4096 -f {private_key} -N ""')
             print(f"SSH key generated at {private_key}")
         else:
@@ -98,7 +98,7 @@ def setup_passwordless_auth(
             print(f"  ✓ Passwordless authentication verified for {host}")
         except Exception as e:
             print(
-                f"  ⚠ Warning: Could not verify passwordless auth for {host}: {str(e)}"
+                f"  ⚠ Warning: Could not verify passwordless auth for {host}: {e}"
             )
 
         ssh.close()
@@ -110,10 +110,10 @@ def setup_passwordless_auth(
         )
         return False
     except paramiko.SSHException as e:
-        print(f"  ✗ SSH connection error for {host}: {str(e)}")
+        print(f"  ✗ SSH connection error for {host}: {e}")
         return False
     except Exception as e:
-        print(f"  ✗ Error connecting to {host}: {str(e)}")
+        print(f"  ✗ Error connecting to {host}: {e}")
         return False
     finally:
         ssh.close()
