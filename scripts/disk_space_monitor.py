@@ -18,6 +18,7 @@ sudo python3 disk_space_monitor.py
 import os
 import shutil
 import sys
+from contextlib import suppress
 from pathlib import Path
 
 
@@ -39,7 +40,7 @@ def get_disk_usage(path):
 
 def format_bytes(bytes_value):
     """Convert bytes to human readable format"""
-    for unit in ["B", "KB", "MB", "GB", "TB"]:
+    for unit in ("B", "KB", "MB", "GB", "TB"):
         if bytes_value < 1024.0:
             return f"{bytes_value:.1f}{unit}"
         bytes_value /= 1024.0
@@ -63,7 +64,7 @@ def check_disk_space(threshold=90):
     ]
 
     # Additional mounted filesystems
-    try:
+    with suppress(OSError, PermissionError):
         mounts_file = Path("/proc/mounts")
         mounts = mounts_file.read_text().splitlines()
 
@@ -74,8 +75,6 @@ def check_disk_space(threshold=90):
                 # Add common mount points that aren't in our default list
                 if mount_point.startswith("/mnt/") or mount_point.startswith("/media/"):
                     directories_to_check.append(mount_point)
-    except (OSError, PermissionError):
-        pass  # Continue with default directories if we can't read /proc/mounts
 
     # Remove duplicates and non-existent paths
     directories_to_check = list(set(directories_to_check))

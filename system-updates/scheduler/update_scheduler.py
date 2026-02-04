@@ -46,7 +46,7 @@ def run_update_script(script_name):
     except FileNotFoundError:
         logger.error(f"{script_name} script not found in current directory")
     except Exception as e:
-        logger.error(f"Error running {script_name}: {str(e)}")
+        logger.error(f"Error running {script_name}: {e}")
 
 
 if __name__ == "__main__":
