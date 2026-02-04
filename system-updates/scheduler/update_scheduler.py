@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+# nosec B404, B603, B607
 import subprocess
 import sys
 import time

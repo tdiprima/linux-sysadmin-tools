@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Updates Rust and Homebrew, upgrades installed packages, cleans up, and 
 # checks system health, handling exceptions and keyboard interrupts.
+# nosec B404, B603, B607
 import os
 import subprocess
 

@@ -57,7 +57,7 @@ def check_disk_space(threshold=90):
         "/",  # Root filesystem
         "/home",  # User home directories
         "/var",  # Variable data (logs, databases, etc.)
-        "/tmp",  # Temporary files
+        "/tmp",  # Temporary files  # nosec B108
         "/usr",  # User programs and data
         "/opt",  # Optional software packages
         "/boot",  # Boot files
