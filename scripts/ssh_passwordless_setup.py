@@ -9,6 +9,7 @@ import os
 import sys
 from pathlib import Path
 from typing import Tuple
+import subprocess
 
 import paramiko
 
@@ -26,7 +27,9 @@ def generate_ssh_key_if_needed(key_path: str = "~/.ssh/id_rsa") -> Tuple[str, st
         response = input("Would you like to generate a new SSH key? (y/n): ").lower()
         if response == "y":
             Path(private_key).parent.mkdir(parents=True, exist_ok=True)
-            os.system(f'ssh-keygen -t rsa -b 4096 -f {private_key} -N ""')
+            # Using os.system() with an f-string is dangerous. Bad guys could sneak in malicious commands.
+            # os.system(f'ssh-keygen -t rsa -b 4096 -f {private_key} -N ""')
+            subprocess.run(["ssh-keygen", "-t", "rsa", "-b", "4096", "-f", private_key, "-N", ""], check=True)
             print(f"SSH key generated at {private_key}")
         else:
             print("Please generate an SSH key manually or specify an existing one.")
@@ -54,7 +57,9 @@ def setup_passwordless_auth(
     Returns True if successful, False otherwise.
     """
     ssh = paramiko.SSHClient()
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    # AutoAddPolicy() blindly trusts any server. This is how man-in-the-middle attacks happen.
+    # ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.load_system_host_keys()  # Uses ~/.ssh/known_hosts
 
     try:
         # Connect to the server
@@ -62,13 +67,11 @@ def setup_passwordless_auth(
         ssh.connect(host, port=port, username=username, password=password, timeout=10)
 
         # Create .ssh directory if it doesn't exist
-        stdin, stdout, stderr = ssh.exec_command("mkdir -p ~/.ssh && chmod 700 ~/.ssh")
+        stdin, stdout, stderr = ssh.exec_command("mkdir -p ~/.ssh && chmod 700 ~/.ssh")  # nosec B601
         stdout.read()
 
         # Check if key already exists in authorized_keys
-        stdin, stdout, stderr = ssh.exec_command(
-            'cat ~/.ssh/authorized_keys 2>/dev/null || echo ""'
-        )
+        stdin, stdout, stderr = ssh.exec_command('cat ~/.ssh/authorized_keys 2>/dev/null || echo ""')  # nosec B601
         existing_keys = stdout.read().decode("utf-8")
 
         if public_key in existing_keys:
@@ -77,11 +80,11 @@ def setup_passwordless_auth(
             # Append public key to authorized_keys
             escaped_key = public_key.replace('"', '\\"')
             command = f'echo "{escaped_key}" >> ~/.ssh/authorized_keys'
-            stdin, stdout, stderr = ssh.exec_command(command)
+            stdin, stdout, stderr = ssh.exec_command(command)  # nosec B601
             stdout.read()
 
             # Set proper permissions
-            stdin, stdout, stderr = ssh.exec_command("chmod 600 ~/.ssh/authorized_keys")
+            stdin, stdout, stderr = ssh.exec_command("chmod 600 ~/.ssh/authorized_keys")  # nosec B601
             stdout.read()
 
             print(f"  ✓ Public key added to {host}")

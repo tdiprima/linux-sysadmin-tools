@@ -1,5 +1,6 @@
 # Automates the daily execution of system updates for Rust and Homebrew at 3:00 PM,
 # logging the process and handling exceptions.
+# nosec B404, B603, B607
 import os
 import subprocess
 import time

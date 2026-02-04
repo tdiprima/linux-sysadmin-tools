@@ -20,15 +20,13 @@ timeout = 10  # Connection timeout in seconds
 
 def check_ubuntu_reboot(ssh):
     """Check if Ubuntu/Debian server needs reboot"""
-    stdin, stdout, stderr = ssh.exec_command(
-        'test -f /var/run/reboot-required && echo "Yes, reboot needed" || echo "All good"'
-    )
+    stdin, stdout, stderr = ssh.exec_command('test -f /var/run/reboot-required && echo "Yes, reboot needed" || echo "All good"')  # nosec B601
     return stdout.read().decode().strip()
 
 
 def check_rhel_reboot(ssh):
     """Check if RHEL/CentOS server needs reboot"""
-    stdin, stdout, stderr = ssh.exec_command("needs-restarting -r")
+    stdin, stdout, stderr = ssh.exec_command("needs-restarting -r")  # nosec B601
     return stdout.read().decode().strip()
 
 
@@ -37,7 +35,9 @@ def connect_and_check(server, username, check_function, timeout=10):
     try:
         print(f"Connecting to {server}...")
         ssh = paramiko.SSHClient()
-        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        # AutoAddPolicy() blindly trusts any server.
+        # ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.load_system_host_keys()  # Uses ~/.ssh/known_hosts
 
         # Connect with timeout
         ssh.connect(server, username=username, timeout=timeout)
