@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # Description: Script to fully update a macOS system
-# Author: tdiprima
 
 softwareupdate --list                   # Display a list of all available software updates.
 softwareupdate --install --all          # Install all available software updates.

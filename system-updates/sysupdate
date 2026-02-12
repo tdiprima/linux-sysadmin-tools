@@ -1,6 +1,5 @@
 #!/bin/bash
 # Description: Universal system updater for Debian/Ubuntu + RHEL/Rocky
-# Author: Bear & ChatGPT
 
 if [ "$EUID" -ne 0 ]; then
     echo "Re-running with sudo..."
