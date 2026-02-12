@@ -3,8 +3,6 @@
 Linux Disk Space Monitor
 Checks main directories and alerts if disk usage exceeds 90%
 
-Author: Tammy DiPrima
-
 # Run with default 90% threshold
 python3 disk_space_monitor.py
 

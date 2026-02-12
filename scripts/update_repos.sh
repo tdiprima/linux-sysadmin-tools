@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # Description: Update GitHub repositories
-# Author: tdiprima
 
 # Base directory to start searching
 BASE_DIR="/path/to/directory"

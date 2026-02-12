@@ -1,6 +1,5 @@
 #!/bin/bash
 # Description: Generate example log file
-# Author: tdiprima
 
 # Log file name
 LOG_FILE="example-logs.log"

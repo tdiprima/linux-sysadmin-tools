@@ -1,6 +1,5 @@
 #!/bin/bash
 # Description: Script to analyze logs
-# Author: tdiprima
 
 LOG_FILE="/path/to/logfile"
 
