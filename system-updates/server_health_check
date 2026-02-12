@@ -1,8 +1,5 @@
 #!/bin/bash
-#
 # Description: Run right after rebooting/updating to check all the essentials
-# Author: Tammy DiPrima
-#
 echo "===== Server Health Check (Rocky Linux) ====="
 
 echo
