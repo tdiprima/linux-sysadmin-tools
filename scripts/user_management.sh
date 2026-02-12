@@ -1,6 +1,5 @@
 #!/bin/bash
 # Description: Script to manage users
-# Author: tdiprima
 
 echo "User Management Script"
 echo "1. Add User"

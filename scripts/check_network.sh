@@ -1,6 +1,5 @@
 #!/bin/bash
 # Description: Script to check network connectivity
-# Author: tdiprima
 
 HOSTS=("google.com" "github.com" "yahoo.com")
 

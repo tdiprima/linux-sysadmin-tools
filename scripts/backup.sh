@@ -2,10 +2,6 @@
 #
 # Script Name: backup.sh
 # Description: Backs up files from one directory to another.
-# Author: Tammy DiPrima
-# Version: 1.0.0
-# License: MIT
-# Date: 2024-12-27
 #
 # Usage:
 #   ./backup.sh /path/to/source /path/to/destination

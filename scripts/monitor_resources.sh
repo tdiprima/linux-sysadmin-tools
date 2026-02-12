@@ -1,6 +1,5 @@
 #!/bin/bash
 # Description: Script to monitor system resources
-# Author: tdiprima
 
 echo "System Resource Monitor"
 echo "-----------------------"
