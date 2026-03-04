@@ -14,7 +14,7 @@ case $option in
       find "$dir" -type f -exec md5 -r {} + | sort | awk 'BEGIN{prev=""} {if($1==prev){print} prev=$1}'
     else
       # Linux version using md5sum
-      find "$dir" -type f -exec md5sum {} + | sort | uniq -w32 -d
+      find "$dir" -type f -exec md5sum {} + | sort | awk '{if(seen[$1]++ == 1) print prev[$1]; if(seen[$1] > 1) print} {prev[$1]=$0}'
     fi
     ;;
   2)
