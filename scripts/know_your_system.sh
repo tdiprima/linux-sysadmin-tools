@@ -10,14 +10,6 @@ whoami
 echo -e "\n=== Hostname ==="
 hostname
 
-# Where you are in the filesystem
-echo -e "\n=== Current Directory ==="
-pwd
-
-# What files are in the current directory
-echo -e "\n=== Directory Contents ==="
-ls -al
-
 # What the disk space looks like
 echo -e "\n=== Disk Usage ==="
 df -h

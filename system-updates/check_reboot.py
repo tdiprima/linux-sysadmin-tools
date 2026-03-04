@@ -14,6 +14,8 @@ servers = [
     # "192.168.1.14",
 ]
 
+rhel_server = "192.168.1.15"  # TODO: Change IP
+
 username = "USERNAME"
 timeout = 10  # Connection timeout in seconds
 
@@ -73,7 +75,6 @@ for server in servers:
 
 # Check RHEL server
 print("=== Checking RHEL Server ===")
-rhel_server = "172.28.223.208"
 connect_and_check(rhel_server, username, check_rhel_reboot, timeout)
 
 print("Reboot check completed.")

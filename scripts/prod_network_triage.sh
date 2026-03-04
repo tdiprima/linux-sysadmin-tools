@@ -2,22 +2,20 @@
 # Run this the SECOND someone says "it works locally"
 # 
 # Usage:
-# ./prod_network_triage.sh api.prod.com 443 /health
-# 
+# ./prod_network_triage.sh api.prod.com 443
+#
 # Or SSH'd into a box:
-# ./prod_network_triage.sh internal-api 8000 /status
-# 
+# ./prod_network_triage.sh internal-api 8000
+#
 
 # === CONFIG ===
 SERVICE_HOST="${1:-service.com}"
 SERVICE_PORT="${2:-443}"
-HEALTH_PATH="${3:-/health}"
 
 echo "======================================="
 echo "🐻 PROD NETWORK TRIAGE MODE ACTIVATED"
 echo "Host: $SERVICE_HOST"
 echo "Port: $SERVICE_PORT"
-echo "Path: $HEALTH_PATH"
 echo "======================================="
 echo
 
@@ -41,10 +39,9 @@ echo "🧭 [4/7] Traceroute (first 10 hops)"
 traceroute "$SERVICE_HOST" | head -n 10
 echo
 
-# 5. HTTPS / API Health
+# 5. HTTPS / API Reachability
 echo "💓 [5/7] API Reachability Check"
-curl -Iv --max-time 10 "https://$SERVICE_HOST$HEALTH_PATH" \
-  || curl -Iv --max-time 10 "https://$SERVICE_HOST/" \
+curl -Iv --max-time 10 "https://$SERVICE_HOST/" \
   || echo "❌ No HTTP response"
 echo
 
