@@ -16,7 +16,6 @@ sudo python3 disk_space_monitor.py
 import os
 import shutil
 import sys
-from contextlib import suppress
 from pathlib import Path
 
 
@@ -38,11 +37,20 @@ def get_disk_usage(path):
 
 def format_bytes(bytes_value):
     """Convert bytes to human readable format"""
-    for unit in ("B", "KB", "MB", "GB", "TB"):
+    for unit in ["B", "KB", "MB", "GB", "TB"]:
         if bytes_value < 1024.0:
             return f"{bytes_value:.1f}{unit}"
         bytes_value /= 1024.0
     return f"{bytes_value:.1f}PB"
+
+
+def path_is_accessible(path):
+    """Return True only if path exists and can be stat'd without blocking."""
+    try:
+        return Path(path).exists()
+    except (OSError, BlockingIOError) as e:
+        print(f"⚠️  Skipping {path}: {e}")
+        return False
 
 
 def check_disk_space(threshold=90):
@@ -55,14 +63,14 @@ def check_disk_space(threshold=90):
         "/",  # Root filesystem
         "/home",  # User home directories
         "/var",  # Variable data (logs, databases, etc.)
-        "/tmp",  # Temporary files  # nosec B108
+        "/tmp",  # Temporary files
         "/usr",  # User programs and data
         "/opt",  # Optional software packages
         "/boot",  # Boot files
     ]
 
     # Additional mounted filesystems
-    with suppress(OSError, PermissionError):
+    try:
         mounts_file = Path("/proc/mounts")
         mounts = mounts_file.read_text().splitlines()
 
@@ -73,10 +81,12 @@ def check_disk_space(threshold=90):
                 # Add common mount points that aren't in our default list
                 if mount_point.startswith("/mnt/") or mount_point.startswith("/media/"):
                     directories_to_check.append(mount_point)
+    except (OSError, PermissionError):
+        pass  # Continue with default directories if we can't read /proc/mounts
 
-    # Remove duplicates and non-existent paths
+    # Remove duplicates and non-existent/inaccessible paths
     directories_to_check = list(set(directories_to_check))
-    directories_to_check = [d for d in directories_to_check if Path(d).exists()]
+    directories_to_check = [d for d in directories_to_check if path_is_accessible(d)]
 
     all_ok = True
     results = []
