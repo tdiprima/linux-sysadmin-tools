@@ -120,7 +120,9 @@ check_unattended_upgrades() {
     done
 
     # 5. Recent log activity
-    local log_file="/var/log/unattended-upgrades/unattended-upgrades.log"
+    local log_dir="/var/log/unattended-upgrades"
+    local log_file="${log_dir}/unattended-upgrades.log"
+
     if [[ -f "${log_file}" ]]; then
         local last_entry
         last_entry=$(tail -n 1 "${log_file}" 2>/dev/null)
@@ -130,8 +132,27 @@ check_unattended_upgrades() {
         else
             warn "Log file exists but is empty"
         fi
+    elif [[ -d "${log_dir}" ]]; then
+        # Log file is only written when packages are actually upgraded.
+        # The directory existing but the file missing means the service ran
+        # but found nothing to upgrade — check journald to confirm.
+        warn "No upgrade log yet (system may be fully up to date)"
     else
-        warn "Log file not found: ${log_file} (may not have run yet)"
+        warn "Log directory missing: ${log_dir}"
+    fi
+
+    # Always check journald — it captures every run, upgrade or not
+    local last_journal
+    last_journal=$(journalctl -u unattended-upgrades --no-pager -n 5 2>/dev/null \
+        | grep -v '^$' | tail -n 5)
+    if [[ -n "${last_journal}" ]]; then
+        pass "journald has recent entries for unattended-upgrades"
+        info "Last 5 journal lines:"
+        while IFS= read -r line; do
+            echo "       ${line}"
+        done <<< "${last_journal}"
+    else
+        warn "No journald entries found — service may never have run"
     fi
 }
 
