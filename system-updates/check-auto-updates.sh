@@ -141,18 +141,19 @@ check_unattended_upgrades() {
         warn "Log directory missing: ${log_dir}"
     fi
 
-    # Always check journald — it captures every run, upgrade or not
+    # The real upgrade work runs inside apt-daily-upgrade.service (triggered by
+    # apt-daily-upgrade.timer). unattended-upgrades.service is only a shutdown hook.
     local last_journal
-    last_journal=$(journalctl -u unattended-upgrades --no-pager -n 5 2>/dev/null \
-        | grep -v '^$' | tail -n 5)
+    last_journal=$(journalctl -u apt-daily-upgrade.service --no-pager -n 6 2>/dev/null \
+        | grep -v '^$' | tail -n 6)
     if [[ -n "${last_journal}" ]]; then
-        pass "journald has recent entries for unattended-upgrades"
-        info "Last 5 journal lines:"
+        pass "journald has entries for apt-daily-upgrade.service"
+        info "Last 6 journal lines:"
         while IFS= read -r line; do
             echo "       ${line}"
         done <<< "${last_journal}"
     else
-        warn "No journald entries found — service may never have run"
+        warn "No journald entries for apt-daily-upgrade.service — may not have run yet"
     fi
 }
 
