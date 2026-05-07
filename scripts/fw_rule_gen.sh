@@ -99,6 +99,22 @@ done
 
 echo ""
 
+# Get Action
+echo -e "${BOLD}Do you want to ADD or REMOVE this rule?${RESET}"
+echo -e "  ${MAGENTA}1)${RESET} Add rule"
+echo -e "  ${MAGENTA}2)${RESET} Remove rule"
+echo ""
+while true; do
+    read -rp "  Choice [1-2]: " ACTION_CHOICE
+    case $ACTION_CHOICE in
+        1) ACTION="add"; break ;;
+        2) ACTION="remove"; break ;;
+        *) print_error "Please enter 1 or 2." ;;
+    esac
+done
+
+echo ""
+
 # Get Firewall Type
 echo -e "${BOLD}Select firewall type:${RESET}"
 echo -e "  ${MAGENTA}1)${RESET} ufw"
@@ -116,29 +132,59 @@ done
 
 # ─── Output Rules ─────────────────────────────
 
+ACTION_LABEL=$([ "$ACTION" = "add" ] && echo "ADD Rule" || echo "REMOVE Rule")
+
 echo ""
 echo -e "${BOLD}${BLUE}╔══════════════════════════════════════════╗${RESET}"
-echo -e "${BOLD}${BLUE}║           Generated Commands             ║${RESET}"
+echo -e "${BOLD}${BLUE}║        Generated Commands: ${ACTION_LABEL}        ║${RESET}"
 echo -e "${BOLD}${BLUE}╚══════════════════════════════════════════╝${RESET}"
 
 show_ufw() {
     print_section "UFW"
-    echo -e "  ${BOLD}Allow rule:${RESET}"
-    print_cmd "sudo ufw allow from $IP to any port $PORT"
+    if [ "$ACTION" = "add" ]; then
+        echo -e "  ${BOLD}Allow rule:${RESET}"
+        print_cmd "sudo ufw allow from $IP to any port $PORT"
+        echo ""
+        echo -e "  ${BOLD}Reload firewall:${RESET}"
+        print_cmd "sudo ufw reload"
+        print_note "ufw rules are persistent across reboots — no extra save step needed."
+    else
+        echo -e "  ${BOLD}${RED}Remove rule:${RESET}"
+        print_note "First, find the rule number:"
+        print_cmd "sudo ufw status numbered"
+        echo ""
+        print_note "Then delete by number (e.g. if it is rule 3):"
+        print_cmd "sudo ufw delete 3"
+        echo ""
+        print_note "Or delete by rule spec directly:"
+        print_cmd "sudo ufw delete allow from $IP to any port $PORT"
+        echo ""
+        echo -e "  ${BOLD}Reload firewall:${RESET}"
+        print_cmd "sudo ufw reload"
+    fi
     echo ""
     echo -e "  ${BOLD}View all rules (numbered):${RESET}"
     print_cmd "sudo ufw status numbered"
-    echo ""
-    echo -e "  ${BOLD}Reload firewall:${RESET}"
-    print_cmd "sudo ufw reload"
-    print_note "ufw rules are persistent across reboots — no extra save step needed."
 }
 
 show_iptables() {
     print_section "iptables"
-    echo -e "  ${BOLD}Allow rule:${RESET}"
-    print_cmd "sudo iptables -A INPUT -s $IP -p tcp --dport $PORT -j ACCEPT"
-    print_note "Takes effect immediately — no reload needed."
+    if [ "$ACTION" = "add" ]; then
+        echo -e "  ${BOLD}Allow rule:${RESET}"
+        print_cmd "sudo iptables -A INPUT -s $IP -p tcp --dport $PORT -j ACCEPT"
+        print_note "Takes effect immediately — no reload needed."
+    else
+        echo -e "  ${BOLD}${RED}Remove rule:${RESET}"
+        print_note "First, find the rule number:"
+        print_cmd "sudo iptables -L INPUT -v -n --line-numbers"
+        echo ""
+        print_note "Then delete by line number (e.g. if it is line 3):"
+        print_cmd "sudo iptables -D INPUT 3"
+        echo ""
+        print_note "Or delete by matching the rule spec directly:"
+        print_cmd "sudo iptables -D INPUT -s $IP -p tcp --dport $PORT -j ACCEPT"
+        print_note "Takes effect immediately — no reload needed."
+    fi
     echo ""
     echo -e "  ${BOLD}View all rules (numbered):${RESET}"
     print_cmd "sudo iptables -L -v -n --line-numbers"
@@ -152,8 +198,13 @@ show_iptables() {
 
 show_firewalld() {
     print_section "firewall-cmd (firewalld)"
-    echo -e "  ${BOLD}Allow rule:${RESET}"
-    print_cmd "sudo firewall-cmd --permanent --add-rich-rule='rule family=\"ipv4\" source address=\"$IP\" port protocol=\"tcp\" port=\"$PORT\" accept'"
+    if [ "$ACTION" = "add" ]; then
+        echo -e "  ${BOLD}Allow rule:${RESET}"
+        print_cmd "sudo firewall-cmd --permanent --add-rich-rule='rule family=\"ipv4\" source address=\"$IP\" port protocol=\"tcp\" port=\"$PORT\" accept'"
+    else
+        echo -e "  ${BOLD}${RED}Remove rule:${RESET}"
+        print_cmd "sudo firewall-cmd --permanent --remove-rich-rule='rule family=\"ipv4\" source address=\"$IP\" port protocol=\"tcp\" port=\"$PORT\" accept'"
+    fi
     echo ""
     echo -e "  ${BOLD}View all rules:${RESET}"
     print_cmd "sudo firewall-cmd --list-all"
@@ -173,6 +224,6 @@ esac
 
 echo ""
 echo -e "${BOLD}${BLUE}────────────────────────────────────────────${RESET}"
-echo -e "${DIM}  IP: $IP  |  Port: $PORT  |  Protocol: TCP${RESET}"
+echo -e "${DIM}  Action: ${ACTION^^}  |  IP: $IP  |  Port: $PORT  |  Protocol: TCP${RESET}"
 echo -e "${BOLD}${BLUE}────────────────────────────────────────────${RESET}"
 echo ""
