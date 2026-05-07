@@ -1,0 +1,178 @@
+#!/bin/bash
+
+# ─────────────────────────────────────────────
+#  Firewall Rule Generator
+#  Supports: ufw, iptables, firewall-cmd
+# ─────────────────────────────────────────────
+
+# Colors
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+BOLD='\033[1m'
+DIM='\033[2m'
+RESET='\033[0m'
+
+# ─── Helpers ──────────────────────────────────
+
+print_header() {
+    echo ""
+    echo -e "${BOLD}${BLUE}╔══════════════════════════════════════════╗${RESET}"
+    echo -e "${BOLD}${BLUE}║       🔥 Firewall Rule Generator         ║${RESET}"
+    echo -e "${BOLD}${BLUE}╚══════════════════════════════════════════╝${RESET}"
+    echo ""
+}
+
+print_section() {
+    echo ""
+    echo -e "${BOLD}${CYAN}── $1 ──────────────────────────────────────${RESET}"
+    echo ""
+}
+
+print_cmd() {
+    echo -e "  ${GREEN}${BOLD}\$${RESET} ${YELLOW}$1${RESET}"
+}
+
+print_note() {
+    echo -e "  ${DIM}↳ $1${RESET}"
+}
+
+print_error() {
+    echo -e "  ${RED}✖ $1${RESET}"
+}
+
+# ─── Validate IP ──────────────────────────────
+
+validate_ip() {
+    local ip=$1
+    if [[ $ip =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+        IFS='.' read -r -a octets <<< "$ip"
+        for octet in "${octets[@]}"; do
+            if (( octet > 255 )); then return 1; fi
+        done
+        return 0
+    fi
+    return 1
+}
+
+# ─── Validate Port ────────────────────────────
+
+validate_port() {
+    local port=$1
+    if [[ $port =~ ^[0-9]+$ ]] && (( port >= 1 && port <= 65535 )); then
+        return 0
+    fi
+    return 1
+}
+
+# ─── Main ─────────────────────────────────────
+
+print_header
+
+# Get IP
+while true; do
+    echo -e "${BOLD}Enter the source IP address to allow:${RESET}"
+    read -rp "  IP: " IP
+    if validate_ip "$IP"; then
+        break
+    else
+        print_error "Invalid IP address. Please try again."
+    fi
+done
+
+echo ""
+
+# Get Port
+while true; do
+    echo -e "${BOLD}Enter the destination port number:${RESET}"
+    echo -e "  ${DIM}(e.g. 22 for SSH, 80 for HTTP, 443 for HTTPS)${RESET}"
+    read -rp "  Port: " PORT
+    if validate_port "$PORT"; then
+        break
+    else
+        print_error "Invalid port. Must be a number between 1 and 65535."
+    fi
+done
+
+echo ""
+
+# Get Firewall Type
+echo -e "${BOLD}Select firewall type:${RESET}"
+echo -e "  ${MAGENTA}1)${RESET} ufw"
+echo -e "  ${MAGENTA}2)${RESET} iptables"
+echo -e "  ${MAGENTA}3)${RESET} firewall-cmd (firewalld)"
+echo -e "  ${MAGENTA}4)${RESET} All three"
+echo ""
+while true; do
+    read -rp "  Choice [1-4]: " CHOICE
+    case $CHOICE in
+        1|2|3|4) break ;;
+        *) print_error "Please enter 1, 2, 3, or 4." ;;
+    esac
+done
+
+# ─── Output Rules ─────────────────────────────
+
+echo ""
+echo -e "${BOLD}${BLUE}╔══════════════════════════════════════════╗${RESET}"
+echo -e "${BOLD}${BLUE}║           Generated Commands             ║${RESET}"
+echo -e "${BOLD}${BLUE}╚══════════════════════════════════════════╝${RESET}"
+
+show_ufw() {
+    print_section "UFW"
+    echo -e "  ${BOLD}Allow rule:${RESET}"
+    print_cmd "sudo ufw allow from $IP to any port $PORT"
+    echo ""
+    echo -e "  ${BOLD}View all rules (numbered):${RESET}"
+    print_cmd "sudo ufw status numbered"
+    echo ""
+    echo -e "  ${BOLD}Reload firewall:${RESET}"
+    print_cmd "sudo ufw reload"
+    print_note "ufw rules are persistent across reboots — no extra save step needed."
+}
+
+show_iptables() {
+    print_section "iptables"
+    echo -e "  ${BOLD}Allow rule:${RESET}"
+    print_cmd "sudo iptables -A INPUT -s $IP -p tcp --dport $PORT -j ACCEPT"
+    print_note "Takes effect immediately — no reload needed."
+    echo ""
+    echo -e "  ${BOLD}View all rules (numbered):${RESET}"
+    print_cmd "sudo iptables -L -v -n --line-numbers"
+    echo ""
+    echo -e "  ${BOLD}Persist rules across reboots (choose one):${RESET}"
+    print_cmd "sudo iptables-save | sudo tee /etc/iptables/rules.v4"
+    echo -e "  ${DIM}  — or, if iptables-persistent is installed: —${RESET}"
+    print_cmd "sudo netfilter-persistent save"
+    print_note "netfilter-persistent saves both IPv4 (rules.v4) and IPv6 (rules.v6)."
+}
+
+show_firewalld() {
+    print_section "firewall-cmd (firewalld)"
+    echo -e "  ${BOLD}Allow rule:${RESET}"
+    print_cmd "sudo firewall-cmd --permanent --add-rich-rule='rule family=\"ipv4\" source address=\"$IP\" port protocol=\"tcp\" port=\"$PORT\" accept'"
+    echo ""
+    echo -e "  ${BOLD}View all rules:${RESET}"
+    print_cmd "sudo firewall-cmd --list-all"
+    print_note "Add --permanent to see saved rules instead of active ones."
+    echo ""
+    echo -e "  ${BOLD}Reload firewall (required to apply --permanent rules):${RESET}"
+    print_cmd "sudo firewall-cmd --reload"
+    print_note "Rules marked --permanent survive reboots automatically."
+}
+
+case $CHOICE in
+    1) show_ufw ;;
+    2) show_iptables ;;
+    3) show_firewalld ;;
+    4) show_ufw; show_iptables; show_firewalld ;;
+esac
+
+echo ""
+echo -e "${BOLD}${BLUE}────────────────────────────────────────────${RESET}"
+echo -e "${DIM}  IP: $IP  |  Port: $PORT  |  Protocol: TCP${RESET}"
+echo -e "${BOLD}${BLUE}────────────────────────────────────────────${RESET}"
+echo ""
