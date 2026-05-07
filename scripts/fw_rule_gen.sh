@@ -115,6 +115,26 @@ done
 
 echo ""
 
+# Get Policy
+if [ "$ACTION" = "add" ]; then
+    echo -e "${BOLD}Should this rule ALLOW or DENY the traffic?${RESET}"
+else
+    echo -e "${BOLD}Was this rule originally an ALLOW or DENY?${RESET}"
+fi
+echo -e "  ${MAGENTA}1)${RESET} Allow / Accept"
+echo -e "  ${MAGENTA}2)${RESET} Deny / Reject"
+echo ""
+while true; do
+    read -rp "  Choice [1-2]: " POLICY_CHOICE
+    case $POLICY_CHOICE in
+        1) POLICY="allow"; break ;;
+        2) POLICY="deny";  break ;;
+        *) print_error "Please enter 1 or 2." ;;
+    esac
+done
+
+echo ""
+
 # Get Firewall Type
 echo -e "${BOLD}Select firewall type:${RESET}"
 echo -e "  ${MAGENTA}1)${RESET} ufw"
@@ -142,8 +162,15 @@ echo -e "${BOLD}${BLUE}╚══════════════════
 show_ufw() {
     print_section "UFW"
     if [ "$ACTION" = "add" ]; then
-        echo -e "  ${BOLD}Allow rule:${RESET}"
-        print_cmd "sudo ufw allow from $IP to any port $PORT"
+        if [ "$POLICY" = "allow" ]; then
+            echo -e "  ${BOLD}Allow rule:${RESET}"
+            print_cmd "sudo ufw allow from $IP to any port $PORT"
+        else
+            echo -e "  ${BOLD}${RED}Deny rule:${RESET}"
+            print_cmd "sudo ufw deny from $IP to any port $PORT"
+            print_note "ufw \'deny\' silently drops packets. Use \'reject\' to send an error back to the sender:"
+            print_cmd "sudo ufw reject from $IP to any port $PORT"
+        fi
         echo ""
         echo -e "  ${BOLD}Reload firewall:${RESET}"
         print_cmd "sudo ufw reload"
@@ -157,7 +184,11 @@ show_ufw() {
         print_cmd "sudo ufw delete 3"
         echo ""
         print_note "Or delete by rule spec directly:"
-        print_cmd "sudo ufw delete allow from $IP to any port $PORT"
+        if [ "$POLICY" = "allow" ]; then
+            print_cmd "sudo ufw delete allow from $IP to any port $PORT"
+        else
+            print_cmd "sudo ufw delete deny from $IP to any port $PORT"
+        fi
         echo ""
         echo -e "  ${BOLD}Reload firewall:${RESET}"
         print_cmd "sudo ufw reload"
@@ -170,10 +201,22 @@ show_ufw() {
 show_iptables() {
     print_section "iptables"
     if [ "$ACTION" = "add" ]; then
-        echo -e "  ${BOLD}Allow rule:${RESET}"
-        print_cmd "sudo iptables -A INPUT -s $IP -p tcp --dport $PORT -j ACCEPT"
+        if [ "$POLICY" = "allow" ]; then
+            echo -e "  ${BOLD}Allow rule:${RESET}"
+            print_cmd "sudo iptables -A INPUT -s $IP -p tcp --dport $PORT -j ACCEPT"
+        else
+            echo -e "  ${BOLD}${RED}Deny rule:${RESET}"
+            print_cmd "sudo iptables -A INPUT -s $IP -p tcp --dport $PORT -j DROP"
+            print_note "DROP silently discards packets. Use REJECT to send an error back to the sender:"
+            print_cmd "sudo iptables -A INPUT -s $IP -p tcp --dport $PORT -j REJECT"
+        fi
         print_note "Takes effect immediately — no reload needed."
     else
+        if [ "$POLICY" = "allow" ]; then
+            IPT_TARGET="ACCEPT"
+        else
+            IPT_TARGET="DROP"
+        fi
         echo -e "  ${BOLD}${RED}Remove rule:${RESET}"
         print_note "First, find the rule number:"
         print_cmd "sudo iptables -L INPUT -v -n --line-numbers"
@@ -182,7 +225,7 @@ show_iptables() {
         print_cmd "sudo iptables -D INPUT 3"
         echo ""
         print_note "Or delete by matching the rule spec directly:"
-        print_cmd "sudo iptables -D INPUT -s $IP -p tcp --dport $PORT -j ACCEPT"
+        print_cmd "sudo iptables -D INPUT -s $IP -p tcp --dport $PORT -j $IPT_TARGET"
         print_note "Takes effect immediately — no reload needed."
     fi
     echo ""
@@ -198,12 +241,25 @@ show_iptables() {
 
 show_firewalld() {
     print_section "firewall-cmd (firewalld)"
+    if [ "$POLICY" = "allow" ]; then
+        FWD_VERDICT="accept"
+    else
+        FWD_VERDICT="reject"
+    fi
     if [ "$ACTION" = "add" ]; then
-        echo -e "  ${BOLD}Allow rule:${RESET}"
-        print_cmd "sudo firewall-cmd --permanent --add-rich-rule='rule family=\"ipv4\" source address=\"$IP\" port protocol=\"tcp\" port=\"$PORT\" accept'"
+        if [ "$POLICY" = "allow" ]; then
+            echo -e "  ${BOLD}Allow rule:${RESET}"
+        else
+            echo -e "  ${BOLD}${RED}Deny rule:${RESET}"
+            print_note "firewalld uses \'reject\' (sends error back) or \'drop\' (silent). Using reject:"
+        fi
+        print_cmd "sudo firewall-cmd --permanent --add-rich-rule='rule family=\"ipv4\" source address=\"$IP\" port protocol=\"tcp\" port=\"$PORT\" $FWD_VERDICT'"
+        if [ "$POLICY" = "deny" ]; then
+            print_note "For silent drop instead, replace \'reject\' with \'drop\' in the rule above."
+        fi
     else
         echo -e "  ${BOLD}${RED}Remove rule:${RESET}"
-        print_cmd "sudo firewall-cmd --permanent --remove-rich-rule='rule family=\"ipv4\" source address=\"$IP\" port protocol=\"tcp\" port=\"$PORT\" accept'"
+        print_cmd "sudo firewall-cmd --permanent --remove-rich-rule='rule family=\"ipv4\" source address=\"$IP\" port protocol=\"tcp\" port=\"$PORT\" $FWD_VERDICT'"
     fi
     echo ""
     echo -e "  ${BOLD}View all rules:${RESET}"
@@ -225,6 +281,7 @@ esac
 echo ""
 echo -e "${BOLD}${BLUE}────────────────────────────────────────────${RESET}"
 ACTION_UPPER=$(echo "$ACTION" | tr '[:lower:]' '[:upper:]')
-echo -e "${DIM}  Action: ${ACTION_UPPER}  |  IP: $IP  |  Port: $PORT  |  Protocol: TCP${RESET}"
+POLICY_UPPER=$(echo "$POLICY" | tr '[:lower:]' '[:upper:]')
+echo -e "${DIM}  Action: ${ACTION_UPPER}  |  Policy: ${POLICY_UPPER}  |  IP: $IP  |  Port: $PORT  |  Protocol: TCP${RESET}"
 echo -e "${BOLD}${BLUE}────────────────────────────────────────────${RESET}"
 echo ""
