@@ -224,6 +224,7 @@ esac
 
 echo ""
 echo -e "${BOLD}${BLUE}────────────────────────────────────────────${RESET}"
-echo -e "${DIM}  Action: ${ACTION^^}  |  IP: $IP  |  Port: $PORT  |  Protocol: TCP${RESET}"
+ACTION_UPPER=$(echo "$ACTION" | tr '[:lower:]' '[:upper:]')
+echo -e "${DIM}  Action: ${ACTION_UPPER}  |  IP: $IP  |  Port: $PORT  |  Protocol: TCP${RESET}"
 echo -e "${BOLD}${BLUE}────────────────────────────────────────────${RESET}"
 echo ""
