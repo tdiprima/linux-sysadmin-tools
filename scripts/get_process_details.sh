@@ -49,7 +49,7 @@ CMD=$(ps -p "$PID" -o args=)
 # Print to terminal
 echo "✅ Process $PID Details:"
 echo "  🕒 Start Time  : $START_TIME"
-echo "  ⏱️  Elapsed Time : $ELAPSED_TIME"
+echo "  ⏱  Elapsed Time : $ELAPSED_TIME"
 echo "  👤 User        : $USER"
 echo "  🧠 Command     : $CMD"
 

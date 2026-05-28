@@ -26,7 +26,7 @@ echo
 
 # 2. Ping
 echo "🏓 [2/7] Basic Connectivity (ping)"
-ping -c 3 "$SERVICE_HOST" || echo "⚠️ Ping failed (may be blocked)"
+ping -c 3 "$SERVICE_HOST" || echo "⚠ Ping failed (may be blocked)"
 echo
 
 # 3. Port Reachability

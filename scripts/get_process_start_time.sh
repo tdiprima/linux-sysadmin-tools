@@ -31,7 +31,7 @@ fi
 START_TIME=$(ps -p "$PID" -o lstart=)
 
 if [[ -z "$START_TIME" ]]; then
-  echo "⚠️  Unable to determine start time for PID $PID (possibly short-lived or zombie process)."
+  echo "⚠  Unable to determine start time for PID $PID (possibly short-lived or zombie process)."
   exit 2
 fi
 

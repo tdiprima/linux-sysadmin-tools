@@ -10,14 +10,14 @@ echo "-----------------------------------------------" | tee -a "$outfile"
 
 # Hostname
 hostname=$(hostname)
-echo "🏷️ Hostname: $hostname" | tee -a "$outfile"
+echo "🏷 Hostname: $hostname" | tee -a "$outfile"
 
 # OS Version
 if [ -f /etc/os-release ]; then
     os_name=$(grep '^PRETTY_NAME=' /etc/os-release | cut -d= -f2- | tr -d '"')
-    echo "🖥️ OS: $os_name" | tee -a "$outfile"
+    echo "🖥 OS: $os_name" | tee -a "$outfile"
 else
-    echo "🖥️ OS: (info not found)" | tee -a "$outfile"
+    echo "🖥 OS: (info not found)" | tee -a "$outfile"
 fi
 
 # Kernel Version
@@ -47,10 +47,10 @@ if command -v nvidia-smi &> /dev/null; then
 else
     gpu_info=$(lspci | grep -Ei 'vga|3d|display' | head -1)
     if echo "$gpu_info" | grep -qi "vmware\|virtualbox\|qemu"; then
-        echo "🖥️  GPU Info: $gpu_info" | tee -a "$outfile"
+        echo "🖥  GPU Info: $gpu_info" | tee -a "$outfile"
         echo "🚫 No physical GPU detected (virtual display adapter only)" | tee -a "$outfile"
     else
-        echo "🖥️  GPU Info: $gpu_info" | tee -a "$outfile"
+        echo "🖥  GPU Info: $gpu_info" | tee -a "$outfile"
         echo "❓ VRAM: Not detected (non-NVIDIA or no driver)" | tee -a "$outfile"
     fi
 fi

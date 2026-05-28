@@ -9,7 +9,7 @@ fi
 
 # Optional: also check if a reboot is even required
 if [ -f /var/run/reboot-required ]; then
-    echo "⚠️ System says a reboot is required."
+    echo "⚠ System says a reboot is required."
 else
     echo "✨ No reboot required."
 fi

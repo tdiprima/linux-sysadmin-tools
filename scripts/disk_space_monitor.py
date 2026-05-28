@@ -49,7 +49,7 @@ def path_is_accessible(path):
     try:
         return Path(path).exists()
     except (OSError, BlockingIOError) as e:
-        print(f"⚠️  Skipping {path}: {e}")
+        print(f"⚠  Skipping {path}: {e}")
         return False
 
 
@@ -116,7 +116,7 @@ def check_disk_space(threshold=90):
     print("=" * 60)
 
     if not all_ok:
-        print("⚠️  WARNING: One or more filesystems exceed the threshold!")
+        print("⚠  WARNING: One or more filesystems exceed the threshold!")
         print("\nRecommendations:")
         print("- Clean temporary files: sudo rm -rf /tmp/* /var/tmp/*")
         print("- Clean package cache: sudo apt clean (or equivalent for your distro)")

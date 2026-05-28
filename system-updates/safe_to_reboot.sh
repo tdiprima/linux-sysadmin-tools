@@ -7,7 +7,7 @@
 # Always check these first before rebooting: ✅
 # - System load and memory use. 📊
 # - Disk space and inodes. 💾
-# - Active services and errors. ⚙️
+# - Active services and errors. ⚙
 # - Recent logs for patterns. 📝
 # ============================================================================
 
@@ -114,7 +114,7 @@ done < <(df -iP -x tmpfs -x devtmpfs -x squashfs -x overlay 2>/dev/null | tail -
 # ════════════════════════════════════════════════════════════════════════════
 # 3. ACTIVE SERVICES, FAILED UNITS & KEY PROCESSES
 # ════════════════════════════════════════════════════════════════════════════
-banner "⚙️   Services & Processes"
+banner "⚙   Services & Processes"
 
 # Failed systemd units
 if command -v systemctl &>/dev/null; then
@@ -216,7 +216,7 @@ fi
 # ════════════════════════════════════════════════════════════════════════════
 # 5. UPTIME & KERNEL
 # ════════════════════════════════════════════════════════════════════════════
-banner "ℹ️   System Info"
+banner "ℹ   System Info"
 
 echo -e "  Hostname : ${BLD}$(hostname)${RST}"
 echo -e "  Kernel   : ${BLD}$(uname -r)${RST}"
